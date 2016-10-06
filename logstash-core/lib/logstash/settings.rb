@@ -328,17 +328,6 @@ module LogStash
       end
     end
 
-    class Validator < Setting
-      def initialize(name, default=nil, strict=true, validator_class=nil)
-        @validator_class = validator_class
-        super(name, ::Object, default, strict)
-      end
-
-      def validate(value)
-        @validator_class.validate(value)
-      end
-    end
-
     class String < Setting
       def initialize(name, default=nil, strict=true, possible_strings=[])
         @possible_strings = possible_strings
