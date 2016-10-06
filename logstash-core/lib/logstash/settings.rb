@@ -97,6 +97,12 @@ module LogStash
       self.merge(flatten_hash(settings))
     end
 
+    def validate_all
+      @settings.each do |name, setting|
+        setting.validate_value
+      end
+    end
+
     private
     def read_yaml(path)
       YAML.safe_load(IO.read(path)) || {}
@@ -125,8 +131,9 @@ module LogStash
       @validator_proc = validator_proc
       @value = nil
       @value_is_set = false
+      @strict = strict
 
-      validate(default) if strict
+      validate(default) if @strict
       @default = default
     end
 
@@ -138,8 +145,12 @@ module LogStash
       @value_is_set
     end
 
+    def strict?
+      @strict
+    end
+
     def set(value)
-      validate(value)
+      validate(value) if @strict
       @value = value
       @value_is_set = true
       @value
@@ -169,12 +180,18 @@ module LogStash
       self.to_hash == other.to_hash
     end
 
-    private
-    def validate(value)
-      if !value.is_a?(@klass)
-        raise ArgumentError.new("Setting \"#{@name}\" must be a #{@klass}. Received: #{value} (#{value.class})")
-      elsif @validator_proc && !@validator_proc.call(value)
-        raise ArgumentError.new("Failed to validate setting \"#{@name}\" with value: #{value}")
+    def validate_value
+      validate(value)
+    end
+
+    protected
+    def validate(input)
+      if !input.is_a?(@klass)
+        raise ArgumentError.new("Setting \"#{@name}\" must be a #{@klass}. Received: #{input} (#{input.class})")
+      end
+
+      if @validator_proc && !@validator_proc.call(input)
+        raise ArgumentError.new("Failed to validate setting \"#{@name}\" with value: #{input}")
       end
     end
 
@@ -429,3 +446,4 @@ module LogStash
 
   SETTINGS = Settings.new
 end
+
