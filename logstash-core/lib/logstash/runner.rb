@@ -224,17 +224,15 @@ class LogStash::Runner < Clamp::StrictCommand
       return 0
     end
 
-    return start_shell(setting("interactive"), binding) if setting("interactive")
-
-    @settings.validate_all
+    return start_shell(setting("interactive"), binding) unless setting("interactive").empty?
 
     @settings.format_settings.each {|line| logger.debug(line) }
 
-    if setting("config.string").nil? && setting("path.config").nil?
+    if setting("config.string").empty? && setting("path.config").empty?
       fail(I18n.t("logstash.runner.missing-configuration"))
     end
 
-    if setting("config.reload.automatic") && setting("path.config").nil?
+    if setting("config.reload.automatic") && setting("path.config").empty?
       # there's nothing to reload
       signal_usage_error(I18n.t("logstash.runner.reload-without-config-path"))
     end
@@ -252,6 +250,8 @@ class LogStash::Runner < Clamp::StrictCommand
         return 1
       end
     end
+
+    @settings.validate_all
 
     @agent = create_agent(@settings)
 
