@@ -17,9 +17,9 @@ module LogStash
 
   [
             Setting::String.new("node.name", Socket.gethostname),
-            Setting::String.new("path.config", "", false),
+    Setting::NullableString.new("path.config", nil, false),
  Setting::WritableDirectory.new("path.data", ::File.join(LogStash::Environment::LOGSTASH_HOME, "data")),
-            Setting::String.new("config.string", "", false),
+    Setting::NullableString.new("config.string", nil, false),
            Setting::Boolean.new("config.test_and_exit", false),
            Setting::Boolean.new("config.reload.automatic", false),
            Setting::Numeric.new("config.reload.interval", 3), # in seconds

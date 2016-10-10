@@ -359,6 +359,13 @@ module LogStash
       end
     end
 
+    class NullableString < String
+      def validate(value)
+        return if value.nil?
+        super(value)
+      end
+    end
+
     class ExistingFilePath < Setting
       def initialize(name, default=nil, strict=true)
         super(name, ::String, default, strict) do |file_path|
